@@ -48,7 +48,7 @@ try:
     print(f'Successfully logged in to {EMAIL_HOST}')
 except:
     print('  Count not log into email host')
-
+    exit()    
 
 # Set up the email string and send email
 try:
@@ -66,7 +66,7 @@ try:
     print("Successfully sent email message")
 except:
     print("  Could not send email message")
-
+    exit()
 
 # Close the email_server object when you are done with it (log out)
 try:
