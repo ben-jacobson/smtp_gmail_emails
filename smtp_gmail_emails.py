@@ -26,52 +26,57 @@ EMAIL_FROM = EMAIL_HOST_USER
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 TO_EMAIL = sys.argv[1]          # run script - smtp_gmail_email.py *Insert email to send to*
 
-# First set up the email server object
-try:
-    email_server = smtplib.SMTP_SSL(host=EMAIL_HOST, port=EMAIL_SERVER_PORT)
-    print(f'Success! Connected email_server to {EMAIL_HOST}')
-except:
-    print("  Could not connect to email host")
-    exit()
+# set up the smtllib object
+with smtplib.SMTP_SSL(host=EMAIL_HOST, port=EMAIL_SERVER_PORT) as email_server:
+    print(f'Successfully created smtp_ssl object')
 
-# Then Ehlo as a quick test. Ehlo is short for Extended Helo. It's about communicating to the SMTP server to identify youself - http://www.samlogic.net/articles/smtp-commands-reference.htm
-try:
-    email_server.ehlo()
-    print('Successfully ehlo\'d')
-except:
-    print("  Could not ehlo")
-    exit()
+    try:
+        # Attempt to ehlo with the email server
+        email_server.ehlo_or_helo_if_needed()
+        print('Successfully ehlo or helo\'d')
 
-# A login method which exchanges tokens
-try: 
-    email_server.login(EMAIL_HOST_USER, EMAIL_PASSWORD)
-    print(f'Successfully logged in to {EMAIL_HOST}')
-except:
-    print('  Count not log into email host')
-    exit()    
+        try: 
+            # Attempt to login to the email server
+            email_server.login(EMAIL_HOST_USER, EMAIL_PASSWORD)
+            print(f'Successfully logged in to {EMAIL_HOST} as user {EMAIL_HOST_USER}')
 
-# Set up the email string and send email
-try:
-    email_content = EmailMessage()
-    email_content.set_content("This is the body of the email")
-    email_content['Subject'] = "Subject Line"
-    email_content['From'] = EMAIL_FROM
-    email_content['To'] = TO_EMAIL
+        except smtplib.SMTPAuthenticationError:
+            print("The server didn’t accept the username/password combination.")
 
-    print ("about to send: ")
-    print (email_content)
+        except smtplib.SMTPNotSupportedError:
+            print("The AUTH command is not supported by the server.")
 
-    #email_server.sendmail(EMAIL_FROM, TO_EMAIL, email_content)
-    email_server.send_message(email_content)
-    print("Successfully sent email message")
-except:
-    print("  Could not send email message")
-    exit()
+        except smtplib.SMTPException:
+            print("Something went wrong that we haven't accounted for, unsure what")              
 
-# Close the email_server object when you are done with it (log out)
-try:
-    email_server.close()
-    print("Successfully closed email_server")
-except:
-    print("  Could not closed email_server")
-    exit()
+        # Set up the email string and preview it
+        email_content = EmailMessage()
+        email_content.set_content("This is the body of the email")
+        email_content['Subject'] = "Subject Line"
+        email_content['From'] = EMAIL_FROM
+        email_content['To'] = TO_EMAIL
+        print ("about to send: ")
+        print (email_content)
+
+        try: 
+            # Attempt to send the email message
+            email_server.send_message(email_content)
+            print("Successfully sent email message")
+
+        except smtplib.SMTPRecipientsRefused:
+            print("One or more recipients were refused. Nobody got the mail")
+
+        except smtplib.SMTPSenderRefused:
+            print("The server didn’t accept the from_addr.")
+
+        except smtplib.SMTPDataError:
+            print("The server replied with an unexpected error code (other than a refusal of a recipient).")    
+
+        except smtplib.SMTPNotSupportedError:
+            print("SMTPUTF8 was given in the mail_options but is not supported by the server.") 
+
+    except smtplib.SMTPHeloError:
+        print("The server didn’t reply properly to the EHLO/HELO greeting.")
+
+# with does auto cleanup, if no exceptions were triggered, we're golden
+print("Successfully closed smtp_ssl object")
