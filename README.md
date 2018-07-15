@@ -10,9 +10,12 @@ It might be worth refactoring this into our own little wrapper or a django packa
 
 Instructions:
 
-    First set environment variables EMAIL_HOST_USER and EMAIL_PASSWORD in your OS. eg I'm on Ubuntu, so I use $ export EMAIL_PASSWORD=insert your password here
-    This code is for Gmail, you must first set up your gmail account to allow less secure apps - https://support.google.com/accounts/answer/6010255
-    The code below is configured to use SSL, and runs a smtplib.login() first. gmail is happy with this approach. Have not been able to get this working on TLS
-    Run this with $ python smtp_gmail_emails.py email@emailaddress.com to test this.
+- First set environment variables EMAIL_HOST_USER and EMAIL_PASSWORD in your OS. eg I'm on Ubuntu, so I use $ export EMAIL_PASSWORD=insert your password here
+
+- This code is for Gmail, you must first set up your gmail account to allow less secure apps - https://support.google.com/accounts/answer/6010255
+
+- The code below is configured to use SSL, and runs a smtplib.login() first. gmail is happy with this approach. Have not been able to get this working on TLS
+
+- Run this with $ python smtp_gmail_emails.py email@emailaddress.com to test this.
 
 
